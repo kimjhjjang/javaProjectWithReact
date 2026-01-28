@@ -4,6 +4,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.0'
     id 'io.spring.dependency-management' version '1.1.5'
+    id 'com.github.node-gradle.node' version '7.0.2'
 }
 
 group = 'com.example'
@@ -54,37 +55,16 @@ sourceSets {
 
 def appDir = "$rootDir/app"
 
-tasks.register('installReact', Exec) {
-    workingDir "$appDir"
-    inputs.file "$appDir/package.json"
-    inputs.file "$appDir/package-lock.json"
-    outputs.dir "$appDir/node_modules"
-    group = BasePlugin.BUILD_GROUP
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine 'npm.cmd', 'install'
-    } else {
-        commandLine 'npm', 'install'
-    }
-}
-
-tasks.register('buildReact', Exec) {
-    dependsOn "installReact"
-    workingDir "$appDir"
-    inputs.dir "$appDir/src"
-    inputs.dir "$appDir/public"
-    inputs.file "$appDir/package.json"
-    inputs.file "$appDir/package-lock.json"
-    outputs.dir "$appDir/build"
-    group = BasePlugin.BUILD_GROUP
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine "npm.cmd", "run-script", "build"
-    } else {
-        commandLine "npm", "run-script", "build"
-    }
+// Node.js 플러그인 설정
+node {
+    version = '18.20.2'  // 원하는 Node.js 버전
+    download = true  // 자동으로 Node.js 다운로드
+    workDir = file("${project.projectDir}/.gradle/nodejs")
+    nodeProjectDir = file(appDir)
 }
 
 tasks.register('copyReactBuildFiles', Copy) {
-    dependsOn "buildReact"
+    dependsOn "npm_run_build"
     from "$appDir/build"
     into "$buildDir/resources/main/static"
 }
