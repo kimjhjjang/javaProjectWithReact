@@ -34,7 +34,10 @@ tasks.named('test') {
 }
 
 tasks.named('bootJar', BootJar) {
-    dependsOn "copyReactBuildFiles"
+    // React 빌드를 건너뛰려면 SKIP_REACT_BUILD=true 환경변수 설정
+    if (System.getenv("SKIP_REACT_BUILD") != "true") {
+        dependsOn "copyReactBuildFiles"
+    }
 
     mainClass = "com.example.server.DemoApplication"
     archiveBaseName = "demo"
