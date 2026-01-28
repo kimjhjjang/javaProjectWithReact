@@ -1,0 +1,94 @@
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.0'
+    id 'io.spring.dependency-management' version '1.1.5'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+tasks.named('bootJar', BootJar) {
+    dependsOn "copyReactBuildFiles"
+
+    mainClass = "com.example.server.DemoApplication"
+    archiveBaseName = "demo"
+}
+
+tasks.named('bootRun') {
+    systemProperty 'spring.profiles.active', 'dev'
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs = ["$projectDir/src/main/resources"]
+        }
+    }
+}
+
+def appDir = "$rootDir/app"
+
+tasks.register('installReact', Exec) {
+    workingDir "$appDir"
+    inputs.file "$appDir/package.json"
+    inputs.file "$appDir/package-lock.json"
+    outputs.dir "$appDir/node_modules"
+    group = BasePlugin.BUILD_GROUP
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'npm.cmd', 'install'
+    } else {
+        commandLine 'npm', 'install'
+    }
+}
+
+tasks.register('buildReact', Exec) {
+    dependsOn "installReact"
+    workingDir "$appDir"
+    inputs.dir "$appDir/src"
+    inputs.dir "$appDir/public"
+    inputs.file "$appDir/package.json"
+    inputs.file "$appDir/package-lock.json"
+    outputs.dir "$appDir/build"
+    group = BasePlugin.BUILD_GROUP
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine "npm.cmd", "run-script", "build"
+    } else {
+        commandLine "npm", "run-script", "build"
+    }
+}
+
+tasks.register('copyReactBuildFiles', Copy) {
+    dependsOn "buildReact"
+    from "$appDir/build"
+    into "$buildDir/resources/main/static"
+}
+
+tasks.named('processResources') {
+    dependsOn "copyReactBuildFiles"
+}
