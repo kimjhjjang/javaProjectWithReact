@@ -48,10 +48,21 @@ pipeline {
                     // 새로운 애플리케이션 실행
                     if (isUnix()) {
                         sh '''
-                            # 로그 디렉토리 생성 (Jenkins가 쓸 수 있는 곳)
+                            # 로그 디렉토리 생성
                             mkdir -p logs
-                            nohup java -jar -Dspring.profiles.active=prod server/build/libs/demo-0.0.1-SNAPSHOT.jar > logs/app.log 2>&1 &
-                            echo "Application started"
+                            
+                            # 백그라운드 실행 (Jenkins 파이프라인에서도 유지되도록)
+                            BUILD_ID=dontKillMe nohup java -jar -Dspring.profiles.active=prod server/build/libs/demo-0.0.1-SNAPSHOT.jar > logs/app.log 2>&1 &
+                            
+                            # 프로세스 시작 확인
+                            sleep 3
+                            if ps -ef | grep -v grep | grep demo-0.0.1-SNAPSHOT.jar > /dev/null; then
+                                echo "Application started successfully"
+                            else
+                                echo "Failed to start application"
+                                exit 1
+                            fi
+                            
                             echo "Log file: $PWD/logs/app.log"
                         '''
                     } else {
