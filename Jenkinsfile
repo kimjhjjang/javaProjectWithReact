@@ -14,13 +14,17 @@ pipeline {
         }
 
         stage('Build') {
+            options {
+                timeout(time: 20, unit: 'MINUTES')  // t2.small에서는 빌드 시간이 더 걸림
+            }
             steps {
                 script {
                     if (isUnix()) {
                         sh 'chmod +x gradlew'
-                        sh './gradlew clean build -x test'
+                        // t2.small 인스턴스: 순차 빌드로 메모리 절약
+                        sh './gradlew clean build -x test --build-cache --daemon'
                     } else {
-                        bat 'gradlew.bat clean build -x test'
+                        bat 'gradlew.bat clean build -x test --build-cache --daemon'
                     }
                 }
             }

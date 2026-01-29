@@ -63,6 +63,14 @@ node {
     nodeProjectDir = file(appDir)
 }
 
+// React 빌드 메모리 설정 (t2.small 인스턴스: 메모리 절약 모드)
+tasks.named('npm_run_build').configure {
+    environment = [
+        'NODE_OPTIONS': '--max_old_space_size=1024'  // Node.js 최대 메모리를 1GB로 제한
+    ]
+    outputs.dir("$appDir/build")
+}
+
 tasks.register('copyReactBuildFiles', Copy) {
     dependsOn "npm_run_build"
     from "$appDir/build"
