@@ -11,10 +11,8 @@ function App({ title }: Props) {
 
   useEffect(() => {
     fetch('/api/hello')
-      .then((response) => {
-        return response.json();
-      })
-      .then(function (data) {
+      .then((response) => response.json())
+      .then((data) => {
         setMessage(data);
       });
   }, []);
