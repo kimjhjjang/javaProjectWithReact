@@ -48,8 +48,11 @@ pipeline {
                     // 새로운 애플리케이션 실행
                     if (isUnix()) {
                         sh '''
-                            nohup java -jar -Dspring.profiles.active=prod server/build/libs/demo-0.0.1-SNAPSHOT.jar > /var/log/app.log 2>&1 &
+                            # 로그 디렉토리 생성 (Jenkins가 쓸 수 있는 곳)
+                            mkdir -p logs
+                            nohup java -jar -Dspring.profiles.active=prod server/build/libs/demo-0.0.1-SNAPSHOT.jar > logs/app.log 2>&1 &
                             echo "Application started"
+                            echo "Log file: $PWD/logs/app.log"
                         '''
                     } else {
                         bat '''
