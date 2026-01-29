@@ -10,6 +10,6 @@ public class HelloWorldController {
 
   @GetMapping("api/hello")
   public List<String> hello() {
-    return Arrays.asList("안녕하세요", "Hello");
+    return Arrays.asList("반값습니다.", "수정 테스트");
   }
 }
