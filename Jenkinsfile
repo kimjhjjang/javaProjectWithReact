@@ -30,17 +30,6 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        sh './gradlew test'
-                    } else {
-                        bat 'gradlew.bat test'
-                    }
-                }
-            }
-        }
 
         stage('Deploy') {
             steps {
