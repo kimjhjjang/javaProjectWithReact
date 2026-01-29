@@ -2,11 +2,7 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk17'  // Jenkins에 설정된 JDK 이름 (필요시 수정)
-    }
-
-    environment {
-        GRADLE_HOME = tool 'Gradle'  // Jenkins에 설정된 Gradle 이름 (필요시 수정)
+        jdk 'jdk17'  // Jenkins에 설정된 JDK 이름
     }
 
     stages {
@@ -78,9 +74,6 @@ pipeline {
         }
         failure {
             echo 'Build or deployment failed!'
-        }
-        always {
-            cleanWs()
         }
     }
 }
