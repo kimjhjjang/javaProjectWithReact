@@ -48,22 +48,38 @@ pipeline {
                     // 새로운 애플리케이션 실행
                     if (isUnix()) {
                         sh '''
+                            #!/bin/bash
+                            set -e
+                            
                             # 로그 디렉토리 생성
                             mkdir -p logs
                             
-                            # 백그라운드 실행 (Jenkins 파이프라인에서도 유지되도록)
-                            BUILD_ID=dontKillMe nohup java -jar -Dspring.profiles.active=prod server/build/libs/demo-0.0.1-SNAPSHOT.jar > logs/app.log 2>&1 &
+                            # 시작 스크립트 생성
+                            cat > start-app.sh << 'EOF'
+#!/bin/bash
+cd /var/lib/jenkins/workspace/react-java
+nohup java -jar -Dspring.profiles.active=prod server/build/libs/demo-0.0.1-SNAPSHOT.jar > logs/app.log 2>&1 &
+EOF
+                            
+                            # 실행 권한 부여
+                            chmod +x start-app.sh
+                            
+                            # 백그라운드 실행 (Jenkins가 종료해도 유지)
+                            JENKINS_NODE_COOKIE=dontKillMe ./start-app.sh
                             
                             # 프로세스 시작 확인
-                            sleep 3
+                            sleep 5
                             if ps -ef | grep -v grep | grep demo-0.0.1-SNAPSHOT.jar > /dev/null; then
-                                echo "Application started successfully"
+                                echo "✅ Application started successfully"
+                                echo "📁 Log file: $PWD/logs/app.log"
                             else
-                                echo "Failed to start application"
+                                echo "❌ Failed to start application"
+                                if [ -f logs/app.log ]; then
+                                    echo "Last 20 lines of log:"
+                                    tail -20 logs/app.log
+                                fi
                                 exit 1
                             fi
-                            
-                            echo "Log file: $PWD/logs/app.log"
                         '''
                     } else {
                         bat '''
