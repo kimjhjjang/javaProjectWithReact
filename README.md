@@ -73,7 +73,7 @@ spring-boot-with-reactjs/
 ./gradlew clean build -x test
 ```
 
-애플리케이션은 `http://localhost:9090` 에서 실행됩니다.
+애플리케이션은 `http://localhost:8080` 에서 실행됩니다.
 
 ### 프론트엔드 개발
 
@@ -103,8 +103,8 @@ npm start
 | Type       | Protocol | Port Range | Source    | Description    |
 | ---------- | -------- | ---------- | --------- | -------------- |
 | SSH        | TCP      | 22         | 0.0.0.0/0 | SSH 접속       |
-| Custom TCP | TCP      | 8080       | 0.0.0.0/0 | Jenkins        |
-| Custom TCP | TCP      | 9090       | 0.0.0.0/0 | Spring Boot 앱 |
+| Custom TCP | TCP      | 8080       | 0.0.0.0/0 | Spring Boot 앱 |
+| Custom TCP | TCP      | 9090       | 0.0.0.0/0 | Jenkins        |
 
 ---
 
@@ -137,7 +137,7 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 1. **브라우저에서 접속**
 
    ```
-   http://[EC2-Public-IP]:8080
+   http://[EC2-Public-IP]:9090
    ```
 
 2. **초기 비밀번호 입력**
@@ -229,7 +229,7 @@ Jenkinsfile에 정의된 파이프라인:
 🚀 Deploy
   └─ 기존 프로세스 종료
   └─ 새 애플리케이션 시작
-  └─ 포트 9090에서 실행
+  └─ 포트 8080에서 실행
 ```
 
 ---
@@ -283,7 +283,7 @@ tail -f logs/app.log
 3. **프로세스 확인**
    ```bash
    ps -ef | grep demo-0.0.1-SNAPSHOT.jar
-   sudo ss -tlnp | grep 9090
+   sudo ss -tlnp | grep 8080
    ```
 
 ### 메모리 부족 시
@@ -309,12 +309,12 @@ t2.small 인스턴스에서 메모리 부족 발생 시:
 
 ### Development (dev)
 
-- 포트: 9090
+- 포트: 8080
 - 프로파일: `dev`
 
 ### Production (prod)
 
-- 포트: 9090
+- 포트: 8080
 - 프로파일: `prod`
 - Database: MySQL (선택사항)
 - Cache: Redis (선택사항)
@@ -323,9 +323,9 @@ t2.small 인스턴스에서 메모리 부족 발생 시:
 
 ## 🔗 접속 URL
 
-- **로컬 개발**: http://localhost:9090
-- **배포 환경**: http://[EC2-Public-IP]:9090
-- **Jenkins**: http://[EC2-Public-IP]:8080
+- **로컬 개발**: http://localhost:8080
+- **배포 환경**: http://[EC2-Public-IP]:8080
+- **Jenkins**: http://[EC2-Public-IP]:9090
 
 ---
 
